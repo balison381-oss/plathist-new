@@ -8,9 +8,7 @@ export default function PagamentoPage() {
 
   const [mensagem, setMensagem] = useState("");
   const [loading, setLoading] = useState(false);
-
   const [usuario, setUsuario] = useState<any>(null);
-
 
 
   useEffect(() => {
@@ -18,9 +16,7 @@ export default function PagamentoPage() {
     async function verificarUsuario() {
 
       const {
-
         data: { user }
-
       } = await supabase.auth.getUser();
 
       console.log("USUARIO PAGAMENTO:", user);
@@ -32,8 +28,6 @@ export default function PagamentoPage() {
     verificarUsuario();
 
   }, []);
-
-
 
 
 
@@ -52,7 +46,6 @@ export default function PagamentoPage() {
     setMensagem("Criando pagamento...");
 
 
-
     try {
 
       const response = await fetch("/api/pagamento", {
@@ -60,9 +53,7 @@ export default function PagamentoPage() {
         method: "POST",
 
         headers: {
-
           "Content-Type": "application/json",
-
         },
 
         body: JSON.stringify({
@@ -94,11 +85,8 @@ export default function PagamentoPage() {
 
 
       setMensagem(
-
         data.error ||
-
         "Erro ao criar pagamento."
-
       );
 
 
@@ -116,9 +104,6 @@ export default function PagamentoPage() {
     setLoading(false);
 
   }
-
-
-
 
 
 
@@ -153,6 +138,7 @@ export default function PagamentoPage() {
         backdrop-blur-xl
         "
       >
+
 
         <div
           className="
@@ -192,8 +178,10 @@ export default function PagamentoPage() {
           text-slate-400
           "
         >
-          Finalize o pagamento para liberar seu acesso à Plathist.
+          Realize o pagamento via PIX ou cartão.
+          Após a confirmação, sua conta será ativada automaticamente.
         </p>
+
 
 
 
@@ -208,17 +196,57 @@ export default function PagamentoPage() {
           "
         >
 
+
           <p className="text-sm text-slate-400">
 
             Plano Plathist Premium
 
           </p>
 
+
+
           <p className="mt-2 text-xl font-bold">
 
             Acesso completo à plataforma
 
           </p>
+
+
+
+          <div
+            className="
+            mt-5
+            rounded-xl
+            bg-white/5
+            p-4
+            text-left
+            text-sm
+            text-slate-300
+            "
+          >
+
+            <p className="mb-3 font-bold text-white">
+              Após realizar o pagamento:
+            </p>
+
+
+            <p>
+              ✓ Aguarde a confirmação
+            </p>
+
+
+            <p>
+              ✓ Sua conta será liberada automaticamente
+            </p>
+
+
+            <p>
+              ✓ Entre novamente com seu login
+            </p>
+
+
+          </div>
+
 
 
 
@@ -239,13 +267,18 @@ export default function PagamentoPage() {
 
               <br />
 
-              <strong>{usuario.email}</strong>
+              <strong>
+                {usuario.email}
+              </strong>
 
             </div>
 
           )}
 
+
         </div>
+
+
 
 
 
@@ -274,13 +307,16 @@ export default function PagamentoPage() {
 
             loading
 
-              ? "Criando pagamento..."
+            ? "Criando pagamento..."
 
-              : "Comprar acesso por R$ 1,00"
+            : "Gerar pagamento"
 
           }
 
+
         </button>
+
+
 
 
 
@@ -300,7 +336,10 @@ export default function PagamentoPage() {
 
         )}
 
+
+
       </div>
+
 
     </main>
 
