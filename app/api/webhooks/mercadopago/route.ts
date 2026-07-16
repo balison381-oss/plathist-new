@@ -9,14 +9,13 @@ export async function POST(request: NextRequest) {
     console.log("WEBHOOK RECEBIDO:");
     console.log(body);
 
-    // Recebe apenas notificações de pagamento
     if (body.type !== "payment") {
       return NextResponse.json({
         received: true,
       });
     }
 
-    const paymentId = body.data.id;
+    const paymentId = body.data?.id;
 
     if (!paymentId) {
       return NextResponse.json(
@@ -35,15 +34,27 @@ export async function POST(request: NextRequest) {
 
     const payment = new Payment(client);
 
-    const pagamento = await payment.get({
-      id: paymentId,
-    });
+    let pagamento;
+
+    try {
+      pagamento = await payment.get({
+        id: paymentId,
+      });
+    } catch (error) {
+      console.error("Erro ao buscar pagamento no Mercado Pago:", error);
+
+      return NextResponse.json({
+        received: true,
+        message: "Pagamento não encontrado.",
+      });
+    }
 
     console.log("PAGAMENTO:");
     console.log(pagamento);
 
     if (pagamento.status !== "approved") {
       return NextResponse.json({
+        received: true,
         message: "Pagamento ainda não aprovado.",
       });
     }
@@ -51,6 +62,8 @@ export async function POST(request: NextRequest) {
     const userId = pagamento.external_reference;
 
     if (!userId) {
+      console.error("Sem external_reference no pagamento");
+
       return NextResponse.json(
         {
           error: "Usuário não encontrado no pagamento.",
@@ -69,7 +82,7 @@ export async function POST(request: NextRequest) {
       .eq("id", userId);
 
     if (error) {
-      console.error(error);
+      console.error("Erro Supabase:", error);
 
       return NextResponse.json(
         {
@@ -86,8 +99,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
     });
+
   } catch (error: any) {
-    console.error(error);
+    console.error("Erro geral webhook:", error);
 
     return NextResponse.json(
       {
