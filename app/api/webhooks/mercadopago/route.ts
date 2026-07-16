@@ -37,38 +37,22 @@ export async function POST(request: NextRequest) {
 
     const payment = new Payment(client);
 
-    let pagamento;
-
-    try {
-
-      pagamento = await payment.get({
-        id: paymentId,
-      });
-
-    } catch (error) {
-
-      console.error(
-        "Erro ao buscar pagamento:",
-        error
-      );
-
-      return NextResponse.json({
-        received:true,
-      });
-
-    }
+    const pagamento = await payment.get({
+      id: paymentId,
+    });
 
 
-    console.log("STATUS PAGAMENTO:", pagamento.status);
+    console.log(
+      "STATUS PAGAMENTO:",
+      pagamento.status
+    );
 
 
     if (pagamento.status !== "approved") {
-
       return NextResponse.json({
         received:true,
-        message:"Pagamento ainda não aprovado"
+        message:"Pagamento pendente"
       });
-
     }
 
 
@@ -76,7 +60,6 @@ export async function POST(request: NextRequest) {
 
 
     if (!userId) {
-
       return NextResponse.json(
         {
           error:"Usuário não encontrado"
@@ -85,11 +68,9 @@ export async function POST(request: NextRequest) {
           status:400
         }
       );
-
     }
 
 
-    // Ativa usuário
 
     const { error } = await supabaseAdmin
       .from("profiles")
@@ -101,11 +82,7 @@ export async function POST(request: NextRequest) {
 
 
     if(error){
-
-      console.error(
-        "Erro Supabase:",
-        error
-      );
+      console.error(error);
 
       return NextResponse.json(
         {
@@ -115,7 +92,6 @@ export async function POST(request: NextRequest) {
           status:500
         }
       );
-
     }
 
 
@@ -127,17 +103,12 @@ export async function POST(request: NextRequest) {
 
 
 
-    // Busca dados do aluno
-
-    const { data: usuario } = await supabaseAdmin
-      .from("profiles")
-      .select("nome,email")
-      .eq("id",userId)
-      .single();
+    const email =
+      pagamento.metadata?.email;
 
 
 
-    if(usuario?.email){
+    if(email){
 
 
       try {
@@ -146,11 +117,11 @@ export async function POST(request: NextRequest) {
         await resend.emails.send({
 
           from:
-          "Plathist <onboarding@resend.dev>",
+          "onboarding@resend.dev",
 
 
           to:
-          usuario.email,
+          email,
 
 
           subject:
@@ -163,36 +134,24 @@ export async function POST(request: NextRequest) {
           Pagamento aprovado! 🎉
           </h1>
 
+          <p>
+          Seu acesso à Plathist foi liberado.
+          </p>
 
           <p>
-          Olá ${usuario.nome || ""},
+          Você já pode entrar usando o email e senha cadastrados.
           </p>
 
 
-          <p>
-          Seu pagamento foi confirmado.
-          </p>
-
-
-          <p>
-          Seu acesso à plataforma Plathist já está liberado.
-          </p>
-
-
-          <p>
-          Entre usando o email e senha criados no cadastro.
-          </p>
-
-
-          <br>
+          <br/>
 
 
           <a href="https://plathist-new.vercel.app/login">
-          Acessar Plathist
+          Entrar na Plathist
           </a>
 
 
-          <br><br>
+          <br/><br/>
 
 
           <p>
@@ -206,28 +165,25 @@ export async function POST(request: NextRequest) {
 
         console.log(
           "EMAIL ENVIADO:",
-          usuario.email
+          email
         );
 
 
-      } catch(emailError){
+      } catch(err){
 
         console.error(
-          "Erro enviando email:",
-          emailError
+          "ERRO RESEND:",
+          err
         );
 
       }
-
 
     }
 
 
 
     return NextResponse.json({
-
       success:true
-
     });
 
 
@@ -235,7 +191,7 @@ export async function POST(request: NextRequest) {
   } catch(error:any){
 
     console.error(
-      "Erro geral webhook:",
+      "ERRO WEBHOOK:",
       error
     );
 
