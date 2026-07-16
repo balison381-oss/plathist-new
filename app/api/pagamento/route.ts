@@ -40,19 +40,31 @@ export async function POST(request: NextRequest) {
           },
         ],
 
-        // Identificador oficial do usuário na Plathist
+        // Liga o pagamento ao usuário da Plathist
         external_reference: userId,
 
-        // Informações extras
+        // Dados extras
         metadata: {
           email,
+        },
+
+        // Métodos de pagamento
+        // Mantém PIX e cartão, remove boleto
+        payment_methods: {
+          excluded_payment_types: [
+            {
+              id: "ticket",
+            },
+          ],
         },
 
         back_urls: {
           success:
             "https://plathist-dwqdu0jlo-euabs.vercel.app/pagamento/sucesso",
+
           failure:
             "https://plathist-dwqdu0jlo-euabs.vercel.app/pagamento",
+
           pending:
             "https://plathist-dwqdu0jlo-euabs.vercel.app/pagamento",
         },
@@ -61,15 +73,19 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    console.log("===== MERCADO PAGO =====");
     console.log("PREFERÊNCIA CRIADA");
     console.log("USER:", userId);
-    console.log("PREFERENCE:", result.id);
+    console.log("EMAIL:", email);
+    console.log("PREFERENCE ID:", result.id);
+    console.log("========================");
 
     return NextResponse.json({
       link: result.init_point,
     });
+
   } catch (error: any) {
-    console.error(error);
+    console.error("ERRO MERCADO PAGO:", error);
 
     return NextResponse.json(
       {
