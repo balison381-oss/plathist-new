@@ -40,16 +40,15 @@ export async function POST(request: NextRequest) {
           },
         ],
 
-        // Liga o pagamento ao usuário da Plathist
+        // Liga pagamento ao usuário
         external_reference: userId,
 
-        // Dados extras
         metadata: {
           email,
         },
 
-        // Métodos de pagamento
-        // Mantém PIX e cartão, remove boleto
+        // Permite PIX e cartão
+        // Remove apenas boleto
         payment_methods: {
           excluded_payment_types: [
             {
@@ -60,13 +59,13 @@ export async function POST(request: NextRequest) {
 
         back_urls: {
           success:
-            "https://plathist-dwqdu0jlo-euabs.vercel.app/pagamento/sucesso",
+            "https://plathist-new.vercel.app/pagamento/sucesso",
 
           failure:
-            "https://plathist-dwqdu0jlo-euabs.vercel.app/pagamento",
+            "https://plathist-new.vercel.app/pagamento",
 
           pending:
-            "https://plathist-dwqdu0jlo-euabs.vercel.app/pagamento",
+            "https://plathist-new.vercel.app/pagamento",
         },
 
         auto_return: "approved",
